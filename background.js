@@ -26,6 +26,9 @@ async function fetchCounts(path, etag) {
   }
 }
 
+// Clicking the toolbar icon opens the options page (token setup).
+chrome.action.onClicked.addListener(() => chrome.runtime.openOptionsPage());
+
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === "fetchCounts") {
     fetchCounts(msg.path, msg.etag).then(sendResponse);
@@ -34,8 +37,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === "notify") {
     chrome.notifications.create({
       type: "basic",
-      iconUrl:
-        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
+      iconUrl: "icons/icon128.png",
       title: "GitHub",
       message: `New comment on ${msg.key}`,
     });
