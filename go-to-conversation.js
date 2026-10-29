@@ -1,7 +1,7 @@
 // Floating "Go to conversation" button on PR pages: jumps to the bottom of the
 // Conversation tab.
 (function () {
-  const HASH = "#gh-helper-bottom";
+  const FLAG = "gh-helper-scroll-bottom";
   const ID = "gh-helper-go-bottom";
 
   function prBase() {
@@ -9,13 +9,41 @@
     return m ? m[0] : null;
   }
 
+  function onConversation(base) {
+    return location.pathname.replace(/\/$/, "") === base;
+  }
+
   function scrollToBottom() {
     window.scrollTo(0, document.documentElement.scrollHeight);
   }
 
+  // The "scroll to bottom" request travels in sessionStorage, not the URL, so
+  // shared links stay clean.
+  function takeScrollFlag() {
+    try {
+      const set = sessionStorage.getItem(FLAG) === "1";
+      sessionStorage.removeItem(FLAG);
+      return set;
+    } catch {
+      return false;
+    }
+  }
+
+  function setScrollFlag() {
+    try {
+      sessionStorage.setItem(FLAG, "1");
+    } catch {}
+  }
+
+  // Clean up an anchor left by an earlier version of this button.
+  if (location.hash === "#gh-helper-bottom") {
+    history.replaceState(null, "", location.pathname + location.search);
+    setScrollFlag();
+  }
+
   // After navigating here from another tab: the timeline loads lazily, so keep
   // scrolling for a few seconds.
-  if (location.hash === HASH) {
+  if (takeScrollFlag()) {
     let n = 0;
     const t = setInterval(() => {
       scrollToBottom();
@@ -30,12 +58,18 @@
       if (existing) existing.remove();
       return;
     }
-    if (existing) return;
+    // On the Conversation tab the button leads to Files changed; elsewhere, to
+    // the bottom of Conversation.
+    const label = onConversation(base) ? "go to files changed" : "go to conversation";
+    if (existing) {
+      if (existing.textContent !== label) existing.textContent = label;
+      return;
+    }
 
     const btn = document.createElement("button");
     btn.id = ID;
     btn.type = "button";
-    btn.textContent = "go to conversation";
+    btn.textContent = label;
     btn.style.cssText =
       "position:fixed;right:16px;bottom:16px;z-index:99998;padding:6px 12px;" +
       "font:12px -apple-system,sans-serif;background:#1f6feb;color:#fff;border:0;" +
@@ -43,8 +77,11 @@
     btn.onclick = () => {
       const b = prBase();
       if (!b) return;
-      if (location.pathname === b) scrollToBottom(); // already on Conversation tab
-      else location.href = b + HASH;
+      if (onConversation(b)) location.href = b + "/files";
+      else {
+        setScrollFlag();
+        location.href = b;
+      }
     };
     document.body.appendChild(btn);
   }

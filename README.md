@@ -16,10 +16,10 @@ If you move or rename the folder, remove the extension and load it again.
 ## 2. What it can do
 
 - **Copy file name:** adds a **Copy** button next to the file name in review comment threads.
-- **New-comment alert:** shows a banner when the issue or PR you are viewing gets new comments. It also sends a desktop notification if the tab is in the background.
-- **Go to conversation:** adds a **go to conversation** button at the bottom right of PR pages. It jumps to the bottom of the Conversation tab.
+- **Alerts:** shows a banner when the issue or PR you are viewing gets new comments, or when a PR's CI status changes (the page doesn't always update by itself).
+- **Page jump button:** adds a button at the bottom right of PR pages. On the Conversation tab it goes to Files changed. On other tabs it goes to the bottom of the Conversation tab.
 
-It runs on `https://github.com/*` only.
+It runs on `github.com` and `github.expedia.biz`. To add another host, add it to `content_scripts.matches` and `host_permissions` in `manifest.json` (GitHub Enterprise API lives under `https://<host>/api/*`) and to `HOSTS` in `options.js`.
 
 ## 3. How to use
 
@@ -29,17 +29,19 @@ It runs on `https://github.com/*` only.
 2. Click **Copy** after the file name in a comment thread. This copies the file name, for example `ProofPointOption.java`.
 3. Shift+click copies the path as shown on the page. GitHub shortens long paths with `...`, so it may not be the full path.
 
-### New-comment alert
+### Alerts (comments and CI)
 
-1. Open the extension options (**Details** on the extension card, then **Extension options**).
-2. Paste a read-only [fine-grained token](https://github.com/settings/personal-access-tokens), click **Test** to check it, then click **Save**.
-3. Reload your GitHub tabs. Leave a PR or issue open and a banner appears when new comments arrive. Click **Refresh** in the banner to load them.
+1. Open the extension options (click the toolbar icon, or **Details** on the extension card, then **Extension options**).
+2. Pick the host, paste a read-only [fine-grained token](https://github.com/settings/personal-access-tokens), click **Test** to check it, then click **Save**. Each host has its own token.
+3. Reload your GitHub tabs. Leave a PR open and a banner appears when new comments arrive or CI status changes. Click **Refresh** in the banner to load them.
 
-The token is needed for private repos. Without one, the alert only works on public repos and checks every 2 minutes. With one, it checks every 30 seconds.
-The token is stored in this browser only, and is sent only to `api.github.com`.
+The token is needed for private repos. For the CI alert it needs **Checks: Read** and **Commit statuses: Read**.
+Without a token, the alert only works on public repos and checks every 2 minutes. With one, it checks every 30 seconds.
+The token is stored in this browser only, and is sent only to that host's API.
 The alert counts your own comments too. It re-checks a few seconds after you submit one.
+The CI alert only fires when the overall CI state changes (running, passed, failed) or a new commit is pushed, for example "CI running → passed".
 
-### Go to conversation
+### Page jump button
 
-Open any PR page and click **go to conversation** at the bottom right.
-On the Conversation tab it scrolls to the bottom. On other tabs, such as Files changed, it opens the Conversation tab first.
+Open any PR page and click the button at the bottom right.
+On the Conversation tab it reads **go to files changed**. On other tabs it reads **go to conversation** and opens the Conversation tab scrolled to the bottom.

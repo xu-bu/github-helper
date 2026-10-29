@@ -5,13 +5,13 @@
   "description": "Copy button next to file names in GitHub review comments, plus a new-comment alert.",
   "icons": { "16": "icons/icon16.png", "48": "icons/icon48.png", "128": "icons/icon128.png" },
   "action": { "default_title": "GitHub Helper settings", "default_icon": { "16": "icons/icon16.png", "48": "icons/icon48.png", "128": "icons/icon128.png" } },
-  "permissions": ["notifications", "storage"],
+  "permissions": ["storage"],
   "options_ui": { "page": "options.html", "open_in_tab": true },
-  "host_permissions": ["https://api.github.com/*"],
+  "host_permissions": ["https://api.github.com/*", "https://github.expedia.biz/api/*"],
   "background": { "service_worker": "background.js" },
   "content_scripts": [
     {
-      "matches": ["https://github.com/*"],
+      "matches": ["https://github.com/*", "https://github.expedia.biz/*"],
       "js": ["content.js", "comment-alert.js", "go-to-conversation.js"],
       "run_at": "document_idle"
     }
